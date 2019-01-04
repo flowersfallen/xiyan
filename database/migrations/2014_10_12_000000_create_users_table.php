@@ -20,6 +20,8 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->tinyInteger('active')->unsigned()->default(0)->comment('0未激活,1已激活');
+            $table->tinyInteger('admin')->unsigned()->default(0)->comment('0会员,1管理员');
         });
     }
 
