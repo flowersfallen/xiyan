@@ -17,7 +17,6 @@ class CreatePostsTable extends Migration
             Schema::create('posts', function (Blueprint $table) {
                 $table->increments('id')->comment('主键自增');
                 $table->integer('topic_id')->unsigned()->default(0)->comment('话题id');
-                $table->string('title')->default('')->comment('标题');
                 $table->text('content')->nullable()->comment('内容');
                 $table->string('attachment')->default('')->comment('附件');
                 $table->tinyInteger('type')->unsigned()->default(0)->comment('附件类型，0图片,1视频');

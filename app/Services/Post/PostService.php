@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Services\Topic;
+namespace App\Services\Post;
 
 use App\Services\BaseService;
-use App\Models\Topic\Topic;
+use App\Models\Post\Post;
 
-class TopicService extends BaseService
+class PostService extends BaseService
 {
     protected static $fields = [
-        'title',
-        'description',
-        'thumb',
+        'topic_id',
+        'content',
+        'attachment',
+        'type',
         'created_from',
         'created_by',
         'status',
@@ -22,9 +23,9 @@ class TopicService extends BaseService
         'no_privilege' => '没有权限',
     ];
 
-    public function topicAdd($params)
+    public function postAdd($params)
     {
-        $record = new Topic();
+        $record = new Post();
         $record->getConnection()->beginTransaction();
         try {
             foreach (self::$fields as $v) {
@@ -33,7 +34,6 @@ class TopicService extends BaseService
                 }
             }
             $record->status = 1;
-            $record->post_audit = 1;
 
             $insert = $record->save();
             if (!$insert) {
@@ -56,22 +56,24 @@ class TopicService extends BaseService
         return $send;
     }
 
-    public function topicList($params, $front = 0)
+    public function postList($params, $front = 0)
     {
         $keyword = isset($params['keyword']) ? $params['keyword'] : false;
         $pagesize = isset($params['pagesize']) ? $params['pagesize'] : 15;
 
         if (!$front) {
             $where = [
-                ['status', '<>', 3]
+                ['status', '<>', 3],
+                ['topic_id', '=', $params['topic_id']]
             ];
         } else {
             $where = [
-                ['status', '=', 1]
+                ['status', '=', 1],
+                ['topic_id', '=', $params['topic_id']]
             ];
         }
 
-        $rows = Topic::query()->where($where)
+        $rows = Post::query()->where($where)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('title', 'like', '%' . $keyword . '%');
             })->orderBy('id', 'desc')
@@ -95,14 +97,14 @@ class TopicService extends BaseService
         return $send;
     }
 
-    public function topicDetail($params)
+    public function postDetail($params)
     {
-        $row = Topic::query()->select('topics.*', 'users.name as creater_name')
+        $row = Post::query()->select('posts.*', 'topics.title as topic_title')
             ->where([
-                ['topics.status', '<>', 3],
-                ['topics.id', '=', $params['id']],
+                ['posts.status', '<>', 3],
+                ['posts.id', '=', $params['id']],
             ])
-            ->leftJoin('users', 'topics.created_by', '=', 'users.id')
+            ->leftJoin('topics', 'posts.topic_id', '=', 'topics.id')
             ->first();
 
         $send = [
@@ -113,9 +115,9 @@ class TopicService extends BaseService
         return $send;
     }
 
-    public function topicUpdate($params)
+    public function postUpdate($params)
     {
-        $row = Topic::query()->where([
+        $row = Post::query()->where([
             ['id', '=', $params['id']],
             ['status', '<>', 3]
         ])->first();

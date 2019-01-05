@@ -22,3 +22,12 @@ Route::namespace("Topic")->group(function () {
         Route::post('topic_add', 'TopicController@topicAdd');
     });
 });
+
+Route::namespace("Post")->group(function () {
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('post_list', 'PostController@postList');
+        Route::get('post_detail', 'PostController@postDetail');
+        Route::post('post_update', 'PostController@postUpdate');
+        Route::post('post_add', 'PostController@postAdd');
+    });
+});
