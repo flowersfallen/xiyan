@@ -31,3 +31,12 @@ Route::namespace("Post")->group(function () {
         Route::post('post_add', 'PostController@postAdd');
     });
 });
+
+Route::namespace("Comment")->group(function () {
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('comment_list', 'CommentController@commentList');
+        Route::get('comment_detail', 'CommentController@commentDetail');
+        Route::post('comment_update', 'CommentController@commentUpdate');
+        Route::post('comment_add', 'CommentController@commentAdd');
+    });
+});

@@ -23,6 +23,7 @@ class CreatePostsTable extends Migration
                 $table->tinyInteger('created_from')->unsigned()->default(0)->comment('0前台1后台');
                 $table->integer('created_by')->unsigned()->default(0)->comment('创建者id');
                 $table->tinyInteger('status')->unsigned()->default(0)->comment('0待审,1审核通过,2驳回,3删除');
+                $table->tinyInteger('comment_audit')->unsigned()->default(0)->comment('评论是否审核,0不审核1审核');
                 $table->integer('digg')->unsigned()->default(0)->comment('点赞数');
                 $table->integer('comment')->unsigned()->default(0)->comment('评论数');
                 $table->integer('share')->unsigned()->default(0)->comment('分享数');

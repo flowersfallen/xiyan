@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Services\Post;
+namespace App\Services\Comment;
 
 use App\Services\BaseService;
-use App\Models\Post\Post;
+use App\Models\Comment\Comment;
 
-class PostService extends BaseService
+class CommentService extends BaseService
 {
     protected static $fields = [
-        'topic_id',
+        'post_id',
         'content',
-        'attachment',
-        'type',
         'created_from',
         'created_by',
         'status',
@@ -23,9 +21,9 @@ class PostService extends BaseService
         'no_privilege' => '没有权限',
     ];
 
-    public function postAdd($params)
+    public function commentAdd($params)
     {
-        $record = new Post();
+        $record = new Comment();
         $record->getConnection()->beginTransaction();
         try {
             foreach (self::$fields as $v) {
@@ -56,7 +54,7 @@ class PostService extends BaseService
         return $send;
     }
 
-    public function postList($params, $front = 0)
+    public function commentList($params, $front = 0)
     {
         $keyword = isset($params['keyword']) ? $params['keyword'] : false;
         $pagesize = isset($params['pagesize']) ? $params['pagesize'] : 15;
@@ -64,16 +62,16 @@ class PostService extends BaseService
         if (!$front) {
             $where = [
                 ['status', '<>', 3],
-                ['topic_id', '=', $params['topic_id']]
+                ['post_id', '=', $params['post_id']]
             ];
         } else {
             $where = [
                 ['status', '=', 1],
-                ['topic_id', '=', $params['topic_id']]
+                ['post_id', '=', $params['post_id']]
             ];
         }
 
-        $rows = Post::query()->where($where)
+        $rows = Comment::query()->where($where)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('content', 'like', '%' . $keyword . '%');
             })->orderBy('id', 'desc')
@@ -97,14 +95,13 @@ class PostService extends BaseService
         return $send;
     }
 
-    public function postDetail($params)
+    public function commentDetail($params)
     {
-        $row = Post::query()->select('posts.*', 'topics.title as topic_title')
+        $row = Comment::query()
             ->where([
-                ['posts.status', '<>', 3],
-                ['posts.id', '=', $params['id']],
+                ['comments.status', '<>', 3],
+                ['comments.id', '=', $params['id']],
             ])
-            ->leftJoin('topics', 'posts.topic_id', '=', 'topics.id')
             ->first();
 
         $send = [
@@ -115,9 +112,9 @@ class PostService extends BaseService
         return $send;
     }
 
-    public function postUpdate($params)
+    public function commentUpdate($params)
     {
-        $row = Post::query()->where([
+        $row = Comment::query()->where([
             ['id', '=', $params['id']],
             ['status', '<>', 3]
         ])->first();

@@ -6,7 +6,6 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\Post\PostAdd;
 use App\Http\Requests\Post\PostId;
 use App\Http\Requests\Post\TopicId;
-use Illuminate\Http\Request;
 use App\Services\Post\PostService;
 
 class PostController extends BaseController
