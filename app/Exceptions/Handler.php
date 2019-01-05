@@ -8,6 +8,7 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use App\Traits\ResponseTrait;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 
 class Handler extends ExceptionHandler
 {
@@ -67,6 +68,16 @@ class Handler extends ExceptionHandler
                 [
                     'state' => false,
                     'error' => '用户认证失败',
+                    'message' => 'login'
+                ]
+            );
+        }
+
+        if ($exception instanceof TokenBlacklistedException) {
+            return $this->formatReturn(
+                [
+                    'state' => false,
+                    'error' => 'token失效',
                     'message' => 'login'
                 ]
             );
