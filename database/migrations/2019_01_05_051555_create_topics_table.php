@@ -17,16 +17,12 @@ class CreateTopicsTable extends Migration
             Schema::create('topics', function (Blueprint $table) {
                 $table->increments('id')->comment('主键自增');
                 $table->string('title')->default('')->comment('标题');
-                $table->text('content')->nullable()->comment('内容');
-                $table->string('attachment')->default('')->comment('附件');
-                $table->tinyInteger('type')->unsigned()->default(0)->comment('附件类型，0图片,1视频');
+                $table->text('description')->nullable()->comment('简介');
+                $table->string('thumb')->default('')->comment('图标');
                 $table->tinyInteger('created_from')->unsigned()->default(0)->comment('0前台1后台');
                 $table->integer('created_by')->unsigned()->default(0)->comment('创建者id');
                 $table->tinyInteger('status')->unsigned()->default(0)->comment('0待审,1审核通过,2驳回,3删除');
-                $table->integer('digg')->unsigned()->default(0)->comment('点赞数');
-                $table->integer('comment')->unsigned()->default(0)->comment('评论数');
-                $table->integer('share')->unsigned()->default(0)->comment('分享数');
-                $table->integer('pv')->unsigned()->default(0)->comment('浏览数');
+                $table->tinyInteger('post_audit')->unsigned()->default(0)->comment('帖子是否审核,0不审核1审核');
                 $table->timestamps();
             });
         }

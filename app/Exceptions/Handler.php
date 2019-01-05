@@ -4,9 +4,14 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use App\Traits\ResponseTrait;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
+    use ResponseTrait;
     /**
      * A list of the exception types that are not reported.
      *
@@ -48,6 +53,43 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            return $this->formatReturn(
+                [
+                    'state' => false,
+                    'error' => '请求方式有误'
+                ]
+            );
+        }
+
+        if ($exception instanceof AuthenticationException) {
+            return $this->formatReturn(
+                [
+                    'state' => false,
+                    'error' => '用户认证失败',
+                    'message' => 'login'
+                ]
+            );
+        }
+
         return parent::render($request, $exception);
+    }
+
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+    {
+        if ($e->response) {
+            return $e->response;
+        }
+        $msg = '';
+        foreach ($e->errors() as $errors) {
+            foreach ($errors as $error) {
+                $msg .= $error;
+            }
+        }
+
+        return $this->formatReturn([
+            'state' => false,
+            'error' => $msg
+        ]);
     }
 }
