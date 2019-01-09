@@ -9,6 +9,19 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UserService extends BaseService
 {
+    protected static $fields = [
+        'name',
+        'avatar',
+        'email',
+        'password'
+    ];
+
+    protected static $errors = [
+        'save_error' => '保存失败',
+        'row_not_exist' => '未查到对应记录',
+        'email_used' => '邮箱已被使用',
+    ];
+
     public function checkFriend($user_id, $follow_id)
     {
         $row = Friend::query()->select('id', 'user_id', 'follow_id')
@@ -77,5 +90,62 @@ class UserService extends BaseService
         return [
             'state' => true
         ];
+    }
+
+    public function userEdit($params)
+    {
+        $row = User::query()->where([
+            ['id', '=', $params['user_id']]
+        ])->first();
+        if (!$row) {
+            return [
+                'state' => false,
+                'error' => self::$errors['row_not_exist']
+            ];
+        }
+
+        if (isset($params['email'])) {
+            $email = User::query()->where([
+                ['email', '=', $params['email']]
+            ])->first();
+            if ($email) {
+                return [
+                    'state' => false,
+                    'error' => self::$errors['email_used']
+                ];
+            }
+        }
+
+        $row->getConnection()->beginTransaction();
+        try {
+            foreach (self::$fields as $v) {
+                if (isset($params[$v])) {
+                    if($v != 'password'){
+                        $row->$v = $params[$v];
+                    }else{
+                        $row->$v = bcrypt($params[$v]);
+                    }
+                }
+            }
+
+            $update = $row->save();
+            if (!$update) {
+                throw new \Exception(self::$errors['save_error']);
+            }
+
+            $row->getConnection()->commit();
+            $send = [
+                'state' => true,
+                'data' => $row
+            ];
+        } catch (\Exception $e) {
+            $row->getConnection()->rollBack();
+            $send = [
+                'state' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+
+        return $send;
     }
 }

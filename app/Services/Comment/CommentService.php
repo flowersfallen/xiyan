@@ -39,11 +39,14 @@ class CommentService extends BaseService
                 throw new \Exception(self::$errors['save_error']);
             }
 
-            $post->postInteract([
+            $res = $post->postInteract([
                 'user_id' => $params['created_by'],
                 'id' => $params['post_id'],
                 'type' => 'comment'
             ]);
+            if (!$res['state']) {
+                throw new \Exception(self::$errors['save_error']);
+            }
 
             $record->getConnection()->commit();
             $send = [

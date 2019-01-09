@@ -217,7 +217,7 @@ class PostService extends BaseService
                 switch ($params['type']) {
                     case 'digg':
                         $title = '点赞';
-                        $message = '新增点赞！';
+                        $message = '新增点赞';
                         break;
                     case 'comment':
                         $title = '评论';

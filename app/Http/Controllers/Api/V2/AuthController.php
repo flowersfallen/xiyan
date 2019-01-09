@@ -6,6 +6,8 @@ use App\Http\Controllers\BaseController;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use App\Http\Requests\Custom\CustomLogin;
+use App\Services\User\UserService;
+use Illuminate\Http\Request;
 
 class AuthController extends BaseController
 {
@@ -41,6 +43,15 @@ class AuthController extends BaseController
     {
         $member = $this->guard->user();
         return $this->formatReturn(['state' => true, 'data' => $member]);
+    }
+
+    public function userEdit(Request $request, UserService $service)
+    {
+        $params = $request->all();
+        $user = $this->guard->user();
+        $params['user_id'] = $user['id'];
+        $res = $service->userEdit($params);
+        return $this->formatReturn($res);
     }
 
     public function logout()

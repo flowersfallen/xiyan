@@ -23,6 +23,7 @@ Route::group(['prefix' => 'auth'], function () {
 
     Route::middleware(['auth:api'])->group(function () {
         Route::get('user', 'AuthController@user');
+        Route::post('user_edit', 'AuthController@userEdit');
         Route::post('logout', 'AuthController@logout');
     });
 });
@@ -52,5 +53,7 @@ Route::group(['prefix' => 'v2'], function () {
         Route::post('user_unfollow', 'FriendController@userUnfollow');
 
         Route::post('file_upload', 'IndexController@file');
+
+        Route::get('notice_list', 'NoticeController@noticeList');
     });
 });
