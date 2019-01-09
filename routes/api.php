@@ -28,20 +28,25 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'v2'], function () {
+    Route::get('topic_list', 'TopicController@topicList');
+    Route::get('topic_detail', 'TopicController@topicDetail');
+
+    Route::get('post_list', 'PostController@postList');
+    Route::get('post_detail', 'PostController@postDetail');
+
+    Route::get('comment_list', 'CommentController@commentList');
+    Route::get('comment_detail', 'CommentController@commentDetail');
+
     Route::middleware(['auth:api'])->group(function () {
         Route::post('topic_add', 'TopicController@topicAdd');
-        Route::get('topic_list', 'TopicController@topicList');
-        Route::get('topic_detail', 'TopicController@topicDetail');
         Route::post('topic_update', 'TopicController@topicUpdate');
 
         Route::post('post_add', 'PostController@postAdd');
-        Route::get('post_list', 'PostController@postList');
-        Route::get('post_detail', 'PostController@postDetail');
         Route::post('post_update', 'PostController@postUpdate');
 
         Route::post('comment_add', 'CommentController@commentAdd');
-        Route::get('comment_list', 'CommentController@commentList');
-        Route::get('comment_detail', 'CommentController@commentDetail');
         Route::post('comment_update', 'CommentController@commentUpdate');
+
+        Route::post('file_upload', 'IndexController@file');
     });
 });

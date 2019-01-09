@@ -34,6 +34,7 @@ class PostService extends BaseService
                 }
             }
             $record->status = 1;
+            $record->comment_audit = 1;
 
             $insert = $record->save();
             if (!$insert) {
@@ -68,12 +69,16 @@ class PostService extends BaseService
             ];
         } else {
             $where = [
-                ['status', '=', 1],
-                ['topic_id', '=', $params['topic_id']]
+                ['status', '=', 1]
             ];
+            if (isset($params['topic_id'])) {
+                $where[] = ['topic_id', '=', $params['topic_id']];
+            }
         }
 
-        $rows = Post::query()->where($where)
+        $rows = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'users.name', 'users.avatar')
+            ->leftJoin('users', 'posts.created_by', '=', 'users.id')
+            ->where($where)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('content', 'like', '%' . $keyword . '%');
             })->orderBy('id', 'desc')
@@ -99,12 +104,13 @@ class PostService extends BaseService
 
     public function postDetail($params)
     {
-        $row = Post::query()->select('posts.*', 'topics.title as topic_title')
+        $row = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'users.name', 'users.avatar', 'topics.title')
+            ->leftJoin('users', 'posts.created_by', '=', 'users.id')
+            ->leftJoin('topics', 'posts.topic_id', '=', 'topics.id')
             ->where([
                 ['posts.status', '<>', 3],
                 ['posts.id', '=', $params['id']],
             ])
-            ->leftJoin('topics', 'posts.topic_id', '=', 'topics.id')
             ->first();
 
         $send = [

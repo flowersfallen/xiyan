@@ -7,6 +7,7 @@ use App\Http\Requests\Post\PostAdd;
 use App\Http\Requests\Post\PostId;
 use App\Http\Requests\Post\TopicId;
 use App\Services\Post\PostService;
+use Illuminate\Http\Request;
 
 class PostController extends BaseController
 {
@@ -22,7 +23,7 @@ class PostController extends BaseController
         return $this->formatReturn($res);
     }
 
-    function postList(TopicId $request, PostService $service)
+    function postList(Request $request, PostService $service)
     {
         $params = $request->all();
         $res = $service->postList($params, 1);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\Regist;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 
 class TestController extends Controller
 {

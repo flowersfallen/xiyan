@@ -20,10 +20,9 @@ class CrossHttp
         // 调试模式支持跨域
         if (config('app.debug')) {
             $response->header('Access-Control-Allow-Origin', 'http://localhost:8080');
-            $response->header('Access-Control-Allow-Credentials', 'true');
-            $strTooLong = 'Origin, X-Token, Content-Type, Accept, Authorization, SiteId';
+            $strTooLong = 'Origin, Content-Type, Accept, Authorization';
             $response->header('Access-Control-Allow-Headers', $strTooLong);
-            $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS, DELETE');
+            $response->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         }
 
         return $response;

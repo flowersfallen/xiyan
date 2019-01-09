@@ -71,7 +71,9 @@ class CommentService extends BaseService
             ];
         }
 
-        $rows = Comment::query()->where($where)
+        $rows = Comment::query()->select('comments.id', 'comments.post_id', 'comments.content', 'comments.created_at', 'users.name', 'users.avatar')
+            ->leftJoin('users', 'comments.created_by', '=', 'users.id')
+            ->where($where)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('content', 'like', '%' . $keyword . '%');
             })->orderBy('id', 'desc')
