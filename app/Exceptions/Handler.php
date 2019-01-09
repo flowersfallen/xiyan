@@ -9,6 +9,7 @@ use App\Traits\ResponseTrait;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -59,6 +60,15 @@ class Handler extends ExceptionHandler
                 [
                     'state' => false,
                     'error' => '请求方式有误'
+                ]
+            );
+        }
+
+        if ($exception instanceof BadRequestHttpException) {
+            return $this->formatReturn(
+                [
+                    'state' => false,
+                    'error' => $exception->getMessage()
                 ]
             );
         }

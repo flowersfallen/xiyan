@@ -14,6 +14,7 @@ class TopicService extends BaseService
         'created_from',
         'created_by',
         'status',
+        'post_audit'
     ];
 
     protected static $errors = [
@@ -32,8 +33,6 @@ class TopicService extends BaseService
                     $record->$v = $params[$v];
                 }
             }
-            $record->status = 1;
-            $record->post_audit = 1;
 
             $insert = $record->save();
             if (!$insert) {

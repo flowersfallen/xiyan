@@ -16,8 +16,10 @@ class PostController extends BaseController
         $params = $request->all();
 
         $custom = $request->user();
-        $params['created_from'] = 1;
+        $params['created_from'] = 0;
         $params['created_by'] = $custom['id'];
+        $params['status'] = 0;
+        $params['comment_audit'] = 1;
 
         $res = $service->postAdd($params);
         return $this->formatReturn($res);
@@ -41,6 +43,17 @@ class PostController extends BaseController
     {
         $params = $request->all();
         $res = $service->postUpdate($params);
+        return $this->formatReturn($res);
+    }
+
+    function postInteract(PostId $request, PostService $service)
+    {
+        $params = $request->all();
+
+        $custom = $request->user();
+        $params['user_id'] = $custom['id'];
+
+        $res = $service->postInteract($params);
         return $this->formatReturn($res);
     }
 }

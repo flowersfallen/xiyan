@@ -17,7 +17,7 @@ class CreateFriendsTable extends Migration
             Schema::create('friends', function (Blueprint $table) {
                 $table->increments('id')->comment('主键自增');
                 $table->integer('user_id')->unsigned()->default(0)->comment('用户id');
-                $table->integer('focus_id')->unsigned()->default(0)->comment('好友id');
+                $table->integer('follow_id')->unsigned()->default(0)->comment('关注id');
                 $table->timestamps();
             });
         }

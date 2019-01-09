@@ -43,9 +43,13 @@ Route::group(['prefix' => 'v2'], function () {
 
         Route::post('post_add', 'PostController@postAdd');
         Route::post('post_update', 'PostController@postUpdate');
+        Route::post('post_interact', 'PostController@postInteract');
 
         Route::post('comment_add', 'CommentController@commentAdd');
         Route::post('comment_update', 'CommentController@commentUpdate');
+
+        Route::post('user_follow', 'FriendController@userFollow');
+        Route::post('user_unfollow', 'FriendController@userUnfollow');
 
         Route::post('file_upload', 'IndexController@file');
     });

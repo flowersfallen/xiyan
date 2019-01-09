@@ -16,7 +16,7 @@ class CreateInteractsTable extends Migration
         if (!Schema::hasTable('interacts')) {
             Schema::create('interacts', function (Blueprint $table) {
                 $table->increments('id')->comment('主键自增');
-                $table->integer('topic_id')->unsigned()->default(0)->comment('话题id');
+                $table->integer('post_id')->unsigned()->default(0)->comment('帖子id');
                 $table->string('type')->default('')->comment('互动类型,digg点赞,comment评论,share分享');
                 $table->integer('user_id')->unsigned()->default(0)->comment('用户id');
                 $table->timestamps();

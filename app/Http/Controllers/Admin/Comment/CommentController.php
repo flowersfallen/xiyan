@@ -17,6 +17,7 @@ class CommentController extends BaseController
         $custom = $request->user();
         $params['created_from'] = 1;
         $params['created_by'] = $custom['id'];
+        $params['status'] = 1;
 
         $res = $service->commentAdd($params);
         return $this->formatReturn($res);

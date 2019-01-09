@@ -17,6 +17,8 @@ class PostController extends BaseController
         $custom = $request->user();
         $params['created_from'] = 1;
         $params['created_by'] = $custom['id'];
+        $params['status'] = 1;
+        $params['comment_audit'] = 1;
 
         $res = $service->postAdd($params);
         return $this->formatReturn($res);

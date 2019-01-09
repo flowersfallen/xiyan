@@ -4,6 +4,8 @@ namespace App\Services\Post;
 
 use App\Services\BaseService;
 use App\Models\Post\Post;
+use App\Models\Post\Interact;
+use App\Models\Notice\Notice;
 
 class PostService extends BaseService
 {
@@ -15,6 +17,7 @@ class PostService extends BaseService
         'created_from',
         'created_by',
         'status',
+        'comment_audit'
     ];
 
     protected static $errors = [
@@ -33,8 +36,6 @@ class PostService extends BaseService
                     $record->$v = $params[$v];
                 }
             }
-            $record->status = 1;
-            $record->comment_audit = 1;
 
             $insert = $record->save();
             if (!$insert) {
@@ -161,5 +162,138 @@ class PostService extends BaseService
         }
 
         return $send;
+    }
+
+    public function postInteract($params)
+    {
+        $title = '';
+        $message = '';
+        $from = $params['user_id'];
+        $to = '';
+
+        $record = new Interact();
+        $record->getConnection()->beginTransaction();
+        try {
+            $post = Post::query()->where([
+                ['id', '=', $params['id']],
+                ['status', '=', 1]
+            ])->first();
+            if (!$post) {
+                throw new \Exception(self::$errors['row_not_exist']);
+            }
+            $to = $post->created_by;
+
+            $row = Interact::query()->where([
+                ['post_id', '=', $params['id']],
+                ['type', '=', $params['type']],
+                ['user_id', '=', $params['user_id']]
+            ])->first();
+
+            if ($row && $params['type'] == 'digg') {
+                // 点赞再点删除
+                $update = $row->delete();
+                if (!$update) {
+                    throw new \Exception(self::$errors['save_error']);
+                }
+
+                $update = $this->interactPost($params['id'], $params['type'], -1);
+                if (!$update) {
+                    throw new \Exception(self::$errors['save_error']);
+                }
+
+                $title = '点赞';
+                $message = '取消点赞';
+            } else {
+                // 同种交互多次
+                $update = $this->interactAdd($params['id'], $params['type'], $params['user_id']);
+                if (!$update) {
+                    throw new \Exception(self::$errors['save_error']);
+                }
+
+                $update = $this->interactPost($params['id'], $params['type'], 1);
+                if (!$update) {
+                    throw new \Exception(self::$errors['save_error']);
+                }
+                switch ($params['type']) {
+                    case 'digg':
+                        $title = '点赞';
+                        $message = '新增点赞！';
+                        break;
+                    case 'comment':
+                        $title = '评论';
+                        $message = '新增评论';
+                        break;
+                    case 'share':
+                        $title = '分享';
+                        $message = '新增分享';
+                        break;
+                }
+            }
+
+            // 关联消息
+            $time = date('Y-m-d H:i:s');
+            $relate = [
+                'from' => $from,
+                'to' => $to,
+                'title' => $title,
+                'message' => $message,
+                'state' => 1,
+                'created_at' => $time,
+                'updated_at' => $time
+            ];
+            $insert = Notice::query()->insert($relate);
+            if (!$insert) {
+                throw new \Exception(self::$errors['save_error']);
+            }
+
+            $record->getConnection()->commit();
+            $send = [
+                'state' => true
+            ];
+        } catch (\Exception $e) {
+            $record->getConnection()->rollBack();
+            $send = [
+                'state' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+
+        return $send;
+    }
+
+    public function interactAdd($post_id, $type, $user_id)
+    {
+        $time = date('Y-m-d H:i:s');
+        $update = Interact::query()->insert([
+            'post_id' => $post_id,
+            'type' => $type,
+            'user_id' => $user_id,
+            'created_at' => $time,
+            'updated_at' => $time
+        ]);
+        if (!$update) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function interactPost($post_id, $type, $add)
+    {
+        $row = Post::query()->where([
+            ['id', '=', $post_id]
+        ])->first();
+
+        if (!$row) {
+            return false;
+        }
+
+        $row->$type += $add;
+        $update = $row->save();
+        if (!$update) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services\Comment;
 
 use App\Services\BaseService;
 use App\Models\Comment\Comment;
+use App\Services\Post\PostService;
 
 class CommentService extends BaseService
 {
@@ -23,6 +24,7 @@ class CommentService extends BaseService
 
     public function commentAdd($params)
     {
+        $post = new PostService();
         $record = new Comment();
         $record->getConnection()->beginTransaction();
         try {
@@ -31,12 +33,17 @@ class CommentService extends BaseService
                     $record->$v = $params[$v];
                 }
             }
-            $record->status = 1;
 
             $insert = $record->save();
             if (!$insert) {
                 throw new \Exception(self::$errors['save_error']);
             }
+
+            $post->postInteract([
+                'user_id' => $params['created_by'],
+                'id' => $params['post_id'],
+                'type' => 'comment'
+            ]);
 
             $record->getConnection()->commit();
             $send = [

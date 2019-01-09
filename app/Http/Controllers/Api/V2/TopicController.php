@@ -17,6 +17,8 @@ class TopicController extends BaseController
         $custom = $request->user();
         $params['created_from'] = 0;
         $params['created_by'] = $custom['id'];
+        $params['status'] = 0;
+        $params['post_audit'] = 1;
 
         $res = $service->topicAdd($params);
         return $this->formatReturn($res);
