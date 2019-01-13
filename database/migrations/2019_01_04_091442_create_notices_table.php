@@ -18,6 +18,7 @@ class CreateNoticesTable extends Migration
                 $table->increments('id')->comment('主键自增');
                 $table->integer('from')->unsigned()->default(0)->comment('来源,0系统,其它用户id');
                 $table->integer('to')->unsigned()->default(0)->comment('用户id');
+                $table->integer('post_id')->unsigned()->default(0)->comment('帖子id');
                 $table->string('title')->default('')->comment('标题');
                 $table->string('message')->default('')->comment('内容');
                 $table->tinyInteger('state')->unsigned()->default(0)->comment('0未读,1已读');

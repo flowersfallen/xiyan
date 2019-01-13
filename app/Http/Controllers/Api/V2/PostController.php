@@ -8,9 +8,17 @@ use App\Http\Requests\Post\PostId;
 use App\Http\Requests\Post\TopicId;
 use App\Services\Post\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends BaseController
 {
+    protected $guard;
+
+    public function __construct()
+    {
+        $this->guard = Auth::guard('api');
+    }
+
     function postAdd(PostAdd $request, PostService $service)
     {
         $params = $request->all();
@@ -35,6 +43,13 @@ class PostController extends BaseController
     function postDetail(PostId $request, PostService $service)
     {
         $params = $request->all();
+        $check = $this->guard->check();
+        if ($check) {
+            $user = $this->guard->user();
+            $params['user_id'] = $user['id'];
+        } else {
+            $params['user_id'] = 0;
+        }
         $res = $service->postDetail($params);
         return $this->formatReturn($res);
     }

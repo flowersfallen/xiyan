@@ -85,6 +85,12 @@ class PostService extends BaseService
             })->orderBy('id', 'desc')
             ->paginate($pagesize);
 
+        $rows->each(function ($item) {
+            if (!$item->avatar) {
+                $item->avatar = config('app.url').'/image/avatar/avatar.png';
+            }
+        });
+
         if ($front) {
             $send = [
                 'state' => true,
@@ -114,9 +120,31 @@ class PostService extends BaseService
             ])
             ->first();
 
+        if (!$row) {
+            return [
+                'state' => false,
+                'error' => '未查到对应记录'
+            ];
+        }
+
+        if (!$row->avatar) {
+            $row->avatar = config('app.url').'/image/avatar/avatar.png';
+        }
+
+        $digg = Interact::query()->where([
+            ['post_id', '=', $params['id']],
+            ['type', '=', 'digg'],
+            ['user_id', '=', $params['user_id']]
+        ])->first();
+        if ($digg) {
+            $row->digged = 1;
+        } else {
+            $row->digged = 0;
+        }
+
         $send = [
             'state' => true,
-            'data' => $row ? $row : []
+            'data' => $row
         ];
 
         return $send;
@@ -169,7 +197,6 @@ class PostService extends BaseService
         $title = '';
         $message = '';
         $from = $params['user_id'];
-        $to = '';
 
         $record = new Interact();
         $record->getConnection()->beginTransaction();
@@ -235,6 +262,7 @@ class PostService extends BaseService
             $relate = [
                 'from' => $from,
                 'to' => $to,
+                'post_id' => $params['id'],
                 'title' => $title,
                 'message' => $message,
                 'state' => 1,

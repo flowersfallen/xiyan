@@ -4,6 +4,7 @@ namespace App\Services\User;
 
 use App\Services\BaseService;
 use App\Models\Friend\Friend;
+use App\Models\Code\Code;
 use App\User;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -12,7 +13,9 @@ class UserService extends BaseService
     protected static $fields = [
         'name',
         'avatar',
+        'avatar_big',
         'email',
+        'sign',
         'password'
     ];
 
@@ -35,7 +38,7 @@ class UserService extends BaseService
 
     public function getMember($user_id)
     {
-        $row = User::query()->select('id')->where('id', $user_id)->first();
+        $row = User::query()->where('id', $user_id)->first();
         return $row;
     }
 
@@ -129,6 +132,72 @@ class UserService extends BaseService
             }
 
             $update = $row->save();
+            if (!$update) {
+                throw new \Exception(self::$errors['save_error']);
+            }
+
+            $row->getConnection()->commit();
+            $send = [
+                'state' => true,
+                'data' => $row
+            ];
+        } catch (\Exception $e) {
+            $row->getConnection()->rollBack();
+            $send = [
+                'state' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+
+        return $send;
+    }
+
+    public function register($params)
+    {
+        $code = Code::query()->where('code', $params['code'])->first();
+        if (!$code) {
+            return [
+                'state' => false,
+                'error' => '对应邀请码无效'
+            ];
+        }
+        if ($code->used_by) {
+            return [
+                'state' => false,
+                'error' => '对应邀请码已被使用'
+            ];
+        }
+
+        if (isset($params['email'])) {
+            $email = User::query()->where('email', $params['email'])->first();
+            if ($email) {
+                return [
+                    'state' => false,
+                    'error' => self::$errors['email_used']
+                ];
+            }
+        }
+
+        $row = new User();
+        $row->getConnection()->beginTransaction();
+        try {
+            foreach (self::$fields as $v) {
+                if (isset($params[$v])) {
+                    if($v != 'password'){
+                        $row->$v = $params[$v];
+                    }else{
+                        $row->$v = bcrypt($params[$v]);
+                    }
+                }
+            }
+            $row->active = 1;
+            $update = $row->save();
+            if (!$update) {
+                throw new \Exception(self::$errors['save_error']);
+            }
+
+            $code->used_by = $row->id;
+            $update = $code->save();
             if (!$update) {
                 throw new \Exception(self::$errors['save_error']);
             }

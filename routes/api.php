@@ -18,11 +18,12 @@ use Illuminate\Http\Request;
 //});
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::any('login', 'AuthController@login');
+    Route::post('login', 'AuthController@login');
+    Route::post('register', 'AuthController@register');
     Route::post('refresh', 'AuthController@refresh');
+    Route::get('user', 'AuthController@user');
 
     Route::middleware(['auth:api'])->group(function () {
-        Route::get('user', 'AuthController@user');
         Route::post('user_edit', 'AuthController@userEdit');
         Route::post('logout', 'AuthController@logout');
     });
