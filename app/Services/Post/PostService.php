@@ -77,7 +77,7 @@ class PostService extends BaseService
             }
         }
 
-        $rows = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'users.name', 'users.avatar')
+        $rows = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'posts.created_by', 'users.name', 'users.avatar')
             ->leftJoin('users', 'posts.created_by', '=', 'users.id')
             ->where($where)
             ->when($keyword, function ($query) use ($keyword) {
@@ -111,7 +111,7 @@ class PostService extends BaseService
 
     public function postDetail($params)
     {
-        $row = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'users.name', 'users.avatar', 'topics.title')
+        $row = Post::query()->select('posts.id', 'posts.topic_id', 'posts.content', 'posts.attachment','posts.digg', 'posts.comment', 'posts.created_at', 'posts.created_by', 'users.name', 'users.avatar', 'topics.title')
             ->leftJoin('users', 'posts.created_by', '=', 'users.id')
             ->leftJoin('topics', 'posts.topic_id', '=', 'topics.id')
             ->where([
