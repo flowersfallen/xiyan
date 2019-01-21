@@ -58,6 +58,7 @@ class TopicService extends BaseService
     public function topicList($params, $front = 0)
     {
         $keyword = isset($params['keyword']) ? $params['keyword'] : false;
+        $topicId = isset($params['topic_id']) ? $params['topic_id'] : false;
         $pagesize = isset($params['pagesize']) ? $params['pagesize'] : 15;
 
         if (!$front) {
@@ -73,6 +74,8 @@ class TopicService extends BaseService
         $rows = Topic::query()->where($where)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('title', 'like', '%' . $keyword . '%');
+            })->when($topicId, function ($query) use ($topicId) {
+                $query->where('id', $topicId);
             })->orderBy('id', 'desc')
             ->paginate($pagesize);
 

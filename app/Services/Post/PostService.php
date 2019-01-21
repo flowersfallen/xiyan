@@ -2,6 +2,7 @@
 
 namespace App\Services\Post;
 
+use App\Models\Topic\Topic;
 use App\Services\BaseService;
 use App\Models\Post\Post;
 use App\Models\Post\Interact;
@@ -62,6 +63,7 @@ class PostService extends BaseService
     {
         $keyword = isset($params['keyword']) ? $params['keyword'] : false;
         $pagesize = isset($params['pagesize']) ? $params['pagesize'] : 15;
+        $topic_title = '';
 
         if (!$front) {
             $where = [
@@ -74,6 +76,10 @@ class PostService extends BaseService
             ];
             if (isset($params['topic_id'])) {
                 $where[] = ['topic_id', '=', $params['topic_id']];
+                $topic = Topic::query()->where('id', $params['topic_id'])->first();
+                if ($topic) {
+                    $topic_title = $topic->title;
+                }
             }
         }
 
@@ -96,6 +102,7 @@ class PostService extends BaseService
                 'state' => true,
                 'data' => [
                     'list' => $rows->items(),
+                    'topic_title' => $topic_title,
                     'total' => $rows->total()
                 ]
             ];
