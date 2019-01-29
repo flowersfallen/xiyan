@@ -58,3 +58,5 @@ Route::group(['prefix' => 'v2'], function () {
         Route::get('notice_list', 'NoticeController@noticeList');
     });
 });
+
+Route::any('wechat', 'WeChatController@serve');

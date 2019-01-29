@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Response as IlluminateResponse;
 
 class CrossHttp
 {
@@ -19,10 +21,19 @@ class CrossHttp
 
         // 调试模式支持跨域
         if (config('app.debug')) {
-            $response->header('Access-Control-Allow-Origin', 'http://localhost:8080');
-            $strTooLong = 'Origin, Content-Type, Accept, Authorization';
-            $response->header('Access-Control-Allow-Headers', $strTooLong);
-            $response->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            if ($response instanceof IlluminateResponse) {
+                $response->header('Access-Control-Allow-Origin', 'http://localhost:8080');
+                $strTooLong = 'Origin, Content-Type, Accept, Authorization';
+                $response->header('Access-Control-Allow-Headers', $strTooLong);
+                $response->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            }
+
+            if ($request instanceof Response) {
+                $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:8080');
+                $strTooLong = 'Origin, Content-Type, Accept, Authorization';
+                $response->headers->set('Access-Control-Allow-Headers', $strTooLong);
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            }
         }
 
         return $response;
