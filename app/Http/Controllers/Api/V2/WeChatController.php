@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V2;
 
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\BaseController;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Http\Request;
 
 class WeChatController extends BaseController
 {
@@ -19,6 +21,46 @@ class WeChatController extends BaseController
 
         $app = app('wechat.official_account');
 
+        $app->server->push(function ($message) {
+            switch ($message['MsgType']) {
+                case 'event':
+                    return '收到事件消息';
+                    break;
+                case 'text':
+                    return '收到文字消息';
+                    break;
+                case 'image':
+                    return '收到图片消息';
+                    break;
+                case 'voice':
+                    return '收到语音消息';
+                    break;
+                case 'video':
+                    return '收到视频消息';
+                    break;
+                case 'location':
+                    return '收到坐标消息';
+                    break;
+                case 'link':
+                    return '收到链接消息';
+                    break;
+                case 'file':
+                    return '收到文件消息';
+                default:
+                    return '收到其它消息';
+                    break;
+            }
+        });
+
         return $app->server->serve();
+    }
+
+    public function jssdk(Request $request)
+    {
+        $params = $request->all();
+        $apiList = $params['apiList'];
+        $app = app('wechat.official_account');
+        $jssdk = $app->jssdk->buildConfig(explode(',', $apiList), true);
+        return $jssdk;
     }
 }

@@ -60,3 +60,4 @@ Route::group(['prefix' => 'v2'], function () {
 });
 
 Route::any('wechat', 'WeChatController@serve');
+Route::any('jssdk', 'WeChatController@jssdk');
