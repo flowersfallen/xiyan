@@ -58,9 +58,10 @@ class WeChatController extends BaseController
     public function jssdk(Request $request)
     {
         $params = $request->all();
-        $apiList = $params['apiList'];
+        $url = $params['url'];
         $app = app('wechat.official_account');
-        $jssdk = $app->jssdk->buildConfig(explode(',', $apiList), true);
+        $app->jssdk->setUrl($url);
+        $jssdk = $app->jssdk->buildConfig(['updateAppMessageShareData', 'updateTimelineShareData'], false);
         return $jssdk;
     }
 }
